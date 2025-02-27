@@ -1,3 +1,4 @@
+import java.awt.color.ICC_ColorSpace;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,6 +13,8 @@ public class MovieCollection
     private ArrayList<String[]> movieCast = new ArrayList<String[]>();
     private ArrayList<String []> movieGenre = new ArrayList<String[]>();
     private Scanner scanner;
+    private ArrayList<Movie> topMoviesRate = new ArrayList<>();
+    private ArrayList<Movie> topMoviesRev = new ArrayList<>();
 
 
     public MovieCollection(String fileName)
@@ -26,8 +29,30 @@ public class MovieCollection
             movieCast.add(cast);
             movieGenre.add(genre);
         }
-
+        Collections.reverse(topMoviesRate = movieSort(movies,true));
+        Collections.reverse(topMoviesRev = movieSort(movies,false));
     }
+
+    public ArrayList<Movie> movieSort(ArrayList<Movie> movies, boolean rating) {
+        ArrayList<Movie> movie50 = new ArrayList<>(movies);
+        if (rating) {
+            Collections.sort(movie50, new Comparator<Movie>() {
+                public int compare(Movie a, Movie b) {
+                    return Double.compare(a.getUserRating(), b.getUserRating());
+                }
+            });
+            return movie50;
+        }
+        else {
+            Collections.sort(movie50, new Comparator<Movie>() {
+                public int compare(Movie a, Movie b) {
+                    return Double.compare(a.getRevenue(), b.getRevenue());
+                }
+            });
+            return movie50;
+        }
+    }
+
 
 
     public ArrayList<Movie> getMovies()
@@ -452,14 +477,39 @@ public class MovieCollection
 
     private void listHighestRated()
     {
+        for (int i = 0; i < 50; i++) {
+            System.out.println(i+1 + ". " + topMoviesRate.get(i).getTitle() + ": " + topMovies.get(i).getUserRating());
+        }
+        System.out.println("Which movie would you like to learn more about?");
+        System.out.print("Enter number: ");
+
+        int choice = scanner.nextInt();
+        scanner.nextLine();
 
 
+        Movie selectedMovie = topMoviesRate.get(choice - 1);
+
+
+        displayMovieInfo(selectedMovie);
     }
 
 
     private void listHighestRevenue()
     {
+        for (int i = 0; i < 50; i++) {
+            System.out.println(i+1 + ". " + topMoviesRev.get(i).getTitle() + ": " + topMovies.get(i).getUserRating());
+        }
+        System.out.println("Which movie would you like to learn more about?");
+        System.out.print("Enter number: ");
 
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+
+        Movie selectedMovie = topMoviesRev.get(choice - 1);
+
+
+        displayMovieInfo(selectedMovie);
 
     }
 
