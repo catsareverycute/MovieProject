@@ -1,24 +1,27 @@
-import java.awt.color.ICC_ColorSpace;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Array;
-import java.sql.SQLOutput;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Scanner;
 
 
 public class MovieCollection
 {
+    // arraylists for cast, genre, rating, and revenue for methods to refer to instead of recreating the lists every time
     private ArrayList<Movie> movies;
     private ArrayList<String[]> movieCast = new ArrayList<String[]>();
     private ArrayList<String []> movieGenre = new ArrayList<String[]>();
-    private Scanner scanner;
     private ArrayList<Movie> topMoviesRate = new ArrayList<>();
     private ArrayList<Movie> topMoviesRev = new ArrayList<>();
+    private Scanner scanner;
 
 
     public MovieCollection(String fileName)
     {
+        // sets up the arraylists and organizes it in A-Z order or top rating/revenue
         String[] cast;
         String[] genre;
         importMovieList(fileName);
@@ -29,11 +32,13 @@ public class MovieCollection
             movieCast.add(cast);
             movieGenre.add(genre);
         }
+        // top movies are at the start of the list instead
         Collections.reverse(topMoviesRate = movieSort(movies,true));
         Collections.reverse(topMoviesRev = movieSort(movies,false));
     }
 
     public ArrayList<Movie> movieSort(ArrayList<Movie> movies, boolean rating) {
+        // sorting rating and revenue list based on the rating or revenue attribute (boolean decides how it'll be sorted) in the Movie object 
         ArrayList<Movie> movie50 = new ArrayList<>(movies);
         if (rating) {
             Collections.sort(movie50, new Comparator<Movie>() {
@@ -235,9 +240,9 @@ public class MovieCollection
         searchTerm = searchTerm.toLowerCase();
 
 
-        // arraylist to hold search results
+        // hashset to hold cast members that match the search term without including duplicated and arraylist for the movies the chosen cast member acted in
         ArrayList<Movie> results = new ArrayList<Movie>();
-        HashSet<String> test = new HashSet<String>();
+        HashSet<String> castResults = new HashSet<String>();
 
 
         // search through ALL movies in collection
@@ -246,15 +251,16 @@ public class MovieCollection
             for (int j = 0; j < movieCast.get(i).length;j++){
                 String castMember = movieCast.get(i)[j];
                 castMember = castMember.toLowerCase();
+                // adds cast member if they match the search term (no dupes due to hashset)
                 if (castMember.contains(searchTerm)){
-                    test.add(movieCast.get(i)[j]);
+                    castResults.add(movieCast.get(i)[j]);
                 }
             }
         }
 
 
-        // sort the results by title
-        ArrayList<String> list = new ArrayList<String>(test);
+        // sort the results by cast members in A-Z order
+        ArrayList<String> list = new ArrayList<String>(castResults);
         Collections.sort(list);
 
 
@@ -281,17 +287,14 @@ public class MovieCollection
 
         for (int i = 0; i < movies.size(); i++) {
             for (int j = 0; j < movieCast.get(i).length; j++){
-                String movieTitle = movies.get(i).getTitle();
-                movieTitle = movieTitle.toLowerCase();
-
-
+            // checks each movie cast actor to see if the chosen actor is in the movie
             if (movieCast.get(i)[j].contains(actor)) {
                 //add the Movie object to the results list
                 results.add(movies.get(i));
             }
             }
         }
-        sortResults(results);
+        sortResults(results); // sorts movies by title
         for (int i = 0; i < results.size(); i++)
         {
             String movie = results.get(i).getTitle();
@@ -343,7 +346,7 @@ public class MovieCollection
             String keyword = movies.get(i).getKeywords();
             keyword = keyword.toLowerCase();
 
-
+            // checks if given keyword is part of the keywords for the movie
             if (keyword.indexOf(searchTerm) != -1)
             {
                 //add the Movie objest to the results list
@@ -392,22 +395,23 @@ public class MovieCollection
     private void listGenres()
     {
 
-        // arraylist to hold search results
+        // arraylist to hold search results, hashset for no duplicates when getting genres
         ArrayList<Movie> results = new ArrayList<Movie>();
-        HashSet<String> test = new HashSet<String>();
+        HashSet<String> genreResults = new HashSet<String>();
 
 
         // search through ALL movies in collection
         for (int i = 0; i < movieGenre.size(); i++)
         {
+            // adds genres (hashset does not include dupes)
             for (int j = 0; j < movieGenre.get(i).length;j++){
-                test.add(movieGenre.get(i)[j]);
+                genreResults.add(movieGenre.get(i)[j]);
             }
         }
 
 
-        // sort the results by title
-        ArrayList<String> list = new ArrayList<String>(test);
+        // sort the results by genre in A-Z order
+        ArrayList<String> list = new ArrayList<String>(genreResults);
         Collections.sort(list);
 
 
@@ -432,6 +436,7 @@ public class MovieCollection
 
         String genres = list.get(choice - 1);
 
+        // checks if each movie is the chosen genre
         for (int i = 0; i < movies.size(); i++) {
             for (int j = 0; j < movieGenre.get(i).length; j++){
                 if (movieGenre.get(i)[j].contains(genres)) {
@@ -477,8 +482,9 @@ public class MovieCollection
 
     private void listHighestRated()
     {
+        // prints out top rated fifty movies + ratings using the list set up in the object constructor
         for (int i = 0; i < 50; i++) {
-            System.out.println(i+1 + ". " + topMoviesRate.get(i).getTitle() + ": " + topMovies.get(i).getUserRating());
+            System.out.println(i+1 + ". " + topMoviesRate.get(i).getTitle() + ": " + topMoviesRate.get(i).getUserRating());
         }
         System.out.println("Which movie would you like to learn more about?");
         System.out.print("Enter number: ");
@@ -496,8 +502,9 @@ public class MovieCollection
 
     private void listHighestRevenue()
     {
+        // prints out top revenue fifty movies + revenues using the list set up in the object constructor
         for (int i = 0; i < 50; i++) {
-            System.out.println(i+1 + ". " + topMoviesRev.get(i).getTitle() + ": " + topMovies.get(i).getUserRating());
+            System.out.println(i+1 + ". " + topMoviesRev.get(i).getTitle() + ": $" + topMoviesRev.get(i).getRevenue());
         }
         System.out.println("Which movie would you like to learn more about?");
         System.out.print("Enter number: ");
